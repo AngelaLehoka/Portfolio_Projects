@@ -1,25 +1,24 @@
 
--- DATA EXPLORATION OF COVID-19
+-- WELCOME TO MY DATA EXPLORATION OF COVID-19!
 
--- Data source: OWID
--- Date sourced: 26 April 2022
+-- Details of the data are as follows:
+-- a. Data source: OWID
+-- b. Date sourced: 26 April 2022
 
-
--- Select the data that I am going to be using
 
 SELECT location, date, total_cases, new_cases, total_deaths, population
 FROM PortfolioProjectCovid..CovidDeaths
 WHERE continent is not null
 ORDER BY 1,2
 
--- What is the total death percentage in relation to the population?
+-- Question 1: What is the total death percentage in relation to the population?
 
 SELECT location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
 FROM PortfolioProjectCovid..CovidDeaths
 WHERE continent is not null
 ORDER BY 1,2
 
--- What is the total death percentage in relation to the population in South Africa?
+-- Question 2: What is the total death percentage in relation to the population in South Africa?
 
 SELECT location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
 FROM PortfolioProjectCovid..CovidDeaths
@@ -27,29 +26,21 @@ WHERE location='South Africa' AND continent is not null
 ORDER BY 1,2
 
 
--- What is the percentage of the population who contracted Covid-19?
+-- Question 3: What is the percentage of the population who contracted Covid-19?
 
 SELECT location, date, total_cases, total_deaths, population, (total_cases/population)*100 as CasePercentage
 FROM PortfolioProjectCovid..CovidDeaths
 WHERE continent is not null
 ORDER BY 1,2
 
--- What is the percentage of the population who contracted Covid-19 in South Africa?
+-- Question 4: What is the percentage of the population who contracted Covid-19 in South Africa?
 
 SELECT location, date, total_cases, total_deaths, population, (total_cases/population)*100 as CasePercentage
 FROM PortfolioProjectCovid..CovidDeaths
 WHERE location='South Africa' AND continent is not null
 ORDER BY 1,2
 
-
--- What is the percentage of the population who contracted Covid-19 in South Africa?
-
-SELECT location, date, total_cases, total_deaths, population, (total_cases/population)*100 as CasePercentage
-FROM PortfolioProjectCovid..CovidDeaths
-WHERE location='South Africa' AND continent is not null
-ORDER BY 1,2
-
--- What country has the highest infection rate in relation to the population?
+-- Question 5: What country has the highest infection rate in relation to the population?
 
 SELECT location, population, max(total_cases) as HighestInfectionCount, max((total_cases/population))*100 as HighestInfectionRate
 FROM PortfolioProjectCovid..CovidDeaths
@@ -57,7 +48,7 @@ WHERE continent is not null
 GROUP BY location, population
 ORDER BY HighestInfectionRate DESC
 
--- What country has the highest death count in relation to the population?
+-- Question 6: What country has the highest death count in relation to the population?
 
 SELECT location, max(cast(total_deaths as int)) as TotalDeathCount
 FROM PortfolioProjectCovid..CovidDeaths
@@ -65,10 +56,7 @@ WHERE continent is not null
 GROUP BY location
 ORDER BY TotalDeathCount DESC
 
--- Breaking things down by continent
-
-
--- Showing the continents with the highest deaths counts
+-- Question 7: Showing the continents with the highest deaths counts
 
 SELECT continent, max(cast(total_deaths as int)) as TotalDeathCount
 FROM PortfolioProjectCovid..CovidDeaths
@@ -77,7 +65,7 @@ GROUP BY continent
 ORDER BY TotalDeathCount DESC
 
 
--- What are the global numbers?
+-- Question 8: What are the global numbers?
 
 -- Sum of cases per day
 
@@ -112,7 +100,7 @@ WHERE continent is not null
 ORDER BY 1,2
 
 
--- join the 2 tables together
+-- JOINING THE TWO TABLES TOGETHER 
 
 SELECT *
 FROM PortfolioProjectCovid..CovidDeaths dea
@@ -120,7 +108,8 @@ Join PortfolioProjectCovid..CovidVaccinations vac
 	On dea.location = vac.location
 	and dea.date = vac.date
 
-	-- look at population vs vaccination
+
+-- Question 9: What is the population vs vaccination
 
 SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
 , sum(cast(vac.new_vaccinations as int)) OVER (Partition by dea.location ORDER BY dea.date) as CumulativeVaccinated
@@ -131,7 +120,7 @@ Join PortfolioProjectCovid..CovidVaccinations vac
 WHERE dea.continent is not null
 ORDER BY 2,3
 
--- use CTE 
+-- USING CTE 
 
 
 WITH PopvsVac (continent, location, date, population, new_vaccinations, CumulativeVaccinated)
@@ -149,7 +138,7 @@ SELECT * , (CumulativeVaccinated/population)*100 as PercentageVaccinated
 FROM PopvsVac
 
 
--- use temp tables
+-- CREATING A TEMP TABLE
 
 DROP table if exists #PercentPopulationVaccinated
 Create table #PercentPopulationVaccinated
@@ -174,8 +163,7 @@ SELECT *
 FROM #PercentPopulationVaccinated
 
 
-
--- creating view to store data for later visualization
+-- CREATING VIEW TO VISUALIZE DATA LATER
 
 Create view PercentPopulationVaccinated as
 
